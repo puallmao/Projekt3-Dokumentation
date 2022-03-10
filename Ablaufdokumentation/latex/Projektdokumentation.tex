@@ -110,22 +110,72 @@
     Für das im Projekt benötigte Firewall-System wird die Open-Source Software Lösung IPFire verwendet. 
 
     \subsection{Konfiguration}
+    Die IPFire VM verwendet folgendes Netzwerkkonfigurationsschema. \newline
+    \textbf{GREEN + RED + ORANGE}. \newline
 
+    Hierbei steht \textbf{GREEN} für das lokale Netzwerk, \textbf{RED} steht für das Internet und \textbf{ORANGE} für die DMZ. \newline \newline
+
+    Dem Projektziel entsprechen verwendet die IPFire VM drei Network Adapter.
+    Jeweils eine Adapter sorgt für eine Konnektivität in jedes der drei Netzwerke. \newline
+    
+    Folgende Konfigurationen werden verwendet.
+    \begin{itemize}
+        \item Network Adapter 1:
+        \subitem \textbf{VMnet1:} 00:0C:29:01:9E:DA $\rightarrow$ $"$grünes Netzwerk"
+        \item Network Adapter 2:
+        \subitem \textbf{VMnet2:} 00:50:56:22:2C:E0 $\rightarrow$ $"$oranges Netzwerk"
+        \item Network Adapter 3:
+        \subitem \textbf{VMnet8:} 00:50:56:3F:82:8B $\rightarrow$ $"$rotes Netzwerk"
+    \end{itemize}
+    \ \newline
+
+    \textbf{Folgende IPFire Firewall-Regeln wurden im Webinterface ergänzt.}
+    
+    \captionof{figure}{Firewall-Regeln}
+    \includegraphics[width=\linewidth]{img/ipfire/6.png}
+           
     \newpage
 
     \section{DNS und DHCP}
     \subsection{Server aufsetzen}
-    Für eine sinnvolle Verwendung der Dienste DNS und DHCP wird eine eigenes System verwendet. Das System läuft auf einer CentOS 8 Version, welche direkt für die Nutzung im Serverbereich angepasst ist. Für die umsetzung von DNS und DHCP wird die Software Lösung DNSMASQ verwendet.
-    \subsection{DNS-Service aufsetzen}
-    \subsection{DNS-Service konfigurieren}
-    \subsection{DHCP-Service aufsetzen}
-    \subsection{DHCP-Service konfigurieren}    
+    Für eine sinnvolle Verwendung der Dienste DNS und DHCP wird ein eigenes System verwendet. Das System läuft auf einer CentOS 8 Version, welche direkt für die Nutzung im Serverbereich angepasst ist. Für die Umsetzung von DNS und DHCP wird die Software Lösung DNSMASQ verwendet.
+
+    \subsection{Konfiguration}
+    Für die Installation von DNSMASQ muss folgender Befehl ausgeführt werden.
+    \begin{lstlisting}
+        $ yum install dnsmasq\end{lstlisting}
+    \ \newline
+    Als Nächstes muss die Konfiguration von DNSMASQ angepasst werden.
+    \begin{lstlisting}
+        $ cp /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
+        $ nano /etc/dnsmasq.conf\end{lstlisting}
+    \ \newline
+    Folgende Einstellungen wurden eingetragen.
+    \begin{lstlisting}
+        interface=ens160
+        listen-adress=127.0.0.1
+        resolv-file=/etc/resolv.dnsmasq
+        domain=Doubtful-Joy09.de
+        dhcp-range=192.168.19.50,192.168.19.150,12h
+        dhcp-leasefile=/var/lib/dnsmasq/dnsmasq.leases
+        server=8.8.8.8\end{lstlisting}
+    \ \newline
+    Die Services müssen für die lokale Firewall des DNS und DHCP Servers freigegeben werden.
+    \begin{lstlisting}
+        $ firewall-cmd --zone=public --add-service=dns --permanent
+        $ firewall-cmd --zone=public --add-service=dhcp --permanent
+        $ firewall-cmd --reload\end{lstlisting}
+    \ \newline
+    Um DNS-Einträge hinzuzufügen, muss die hosts\textit{($"$/etc/hosts")} Datei bearbeitet werden.
+    \begin{lstlisting}
+    192.168.19.3 ipfire.Doubtful-Joy09.de
+    192.168.242.4 ticketsystem.Doubtful-Joy09.de\end{lstlisting}
 
     \newpage
 
     \section{Datenbank}
     \subsection{Server aufsetzen}
-    Für eine sinnvolle Verwendung der Dienste DNS und DHCP wird eine eigenes System verwendet. Das System läuft auf einer CentOS 8 Version, welche direkt für die Nutzung im Serverbereich angepasst ist. Für die umsetzung der Datenbank wird die Software Lösung MariaDB verwendet.
+    Für eine sinnvolle Verwendung der Dienste DNS und DHCP wird ein eigenes System verwendet. Das System läuft auf einer CentOS 8 Version, welche direkt für die Nutzung im Serverbereich angepasst ist. Für die Umsetzung der Datenbank wird die Software Lösung MariaDB verwendet.
     \subsubsection{Datenbank aufsetzen}
     Die nachfolgend beschriebenen Schritte zeigen den Prozess des Aufsetzens der Datenbank auf. \newline
     
@@ -139,12 +189,12 @@
         $ systemctl start mariadb
         $ systemctl enable mariadb    \end{lstlisting}
     
-    \subsection{Datenbank konfigurien}
+    \subsection{Datenbank konfigurieren}
     Im ersten Schritt wird die Konfiguration der MariaDB Datenbank gestartet.
     \begin{lstlisting}
-        $ mysql_secure_isntallation \end{lstlisting}
+        $ mysql_secure_installation \end{lstlisting}
 
-    Im laufe der Konfiguration werden Sicherheitstechnisch relevante Einstellungen getätigt. Die folgende Konfiguration wird verwendet.
+    Im Laufe der Konfiguration werden sicherheitstechnisch relevante Einstellungen getätigt. Folgende Konfiguration wird verwendet.
     \captionof{table}{MariaDB-Konfiguration}  
     \begin{center}
         \begin{tabular}{| l | l |}
@@ -160,7 +210,7 @@
     
     \newpage
 
-    Als nächstes muss eine geeignete Datenbank mit einer Tabelle für die Speicherung der Tickets erstellt werden. Dieser Prozess ist anhand der folgenden Befehl ersichtlich.
+    Als Nächstes muss eine geeignete Datenbank mit einer Tabelle für die Speicherung der Tickets erstellt werden. Dieser Prozess ist anhand der folgenden Befehle ersichtlich.
     \begin{lstlisting}[language=sql]
         $ mysql -u root -prootPG9 \end{lstlisting}
     \begin{lstlisting}[language=sql]
@@ -174,7 +224,8 @@
             `date` date NOT NULL,
             `description` mediumtext NOT NULL,
             `category` char(255) NOT NULL,
-            `status` char(255) NOT NULL
+            `status` char(255) NOT NULL,
+            `filename` char(1024)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\end{lstlisting}
     \begin{lstlisting}[language=sql]
         MariaDB [(projekt3)]> ALTER TABLE `tickets` ADD PRIMARY KEY (`id`);\end{lstlisting}
@@ -187,7 +238,7 @@
     
 
     \subsection{Backend}
-    Für die Kommunikation zwischen dem Ticketsystem-Webserver und dem Datenbank Server wurde eine eigene API für den Datenbank Server entwickelt. Die Entwicklung wurde mit NodeJS und ExpressJS umgesetzt.
+    Für die Kommunikation zwischen dem Ticketsystem-Webserver und dem Datenbank-Server wurde eine eigene API für den Datenbank-Server entwickelt. Die Entwicklung wurde mit NodeJS und ExpressJS umgesetzt.
     Der Datenbank Server bekommt alle Datenobjekte vom Webserver zugesendet und kann diese direkt selbst abarbeiten und ggf. in die Datenbank aufnehmen. Der Datenbank Server ist öffentlich nicht zugänglich und demnach auch gegen Zugriffe von außen geschützt.
     
     \begin{lstlisting}[language=JavaScript, caption={Datenbank API-Endpunkt: Ticket in Datenbank aufnehmen}, captionpos=t]
@@ -220,7 +271,7 @@
 
     \section{Webserver}
     \subsection{Server aufsetzen}
-    Der Webserver läuft auf einem eigenem System, so wird ein sinnvolle Einbindung gewährleistet. Das System läuft auf einer CentOS 8 Version, welche direkt für die Nutzung im Serverbereich angepasst ist. 
+    Der Webserver läuft auf einem eigenen System, so wird eine sinnvolle Einbindung gewährleistet. Das System läuft auf einer CentOS 8 Version, welche direkt für die Nutzung im Serverbereich angepasst ist. 
     
     \subsection{Backend}
     Der Webserver verfügt über ein selbst entwickeltes Backend. Die Entwicklung wurde mit NodeJS und ExpressJS umgesetzt. Das Backend ist für die Kommunikation zwischen dem Client-Frontend und der Ticketsystem-Datenbank zuständig. Der Webserver stellt das Ticketsystem-Frontend bereit.
@@ -260,13 +311,13 @@
 
     \section{Ticketsystem}
     \subsection{Frontend}
-    Das Ticketsystem hat sein eigenes Frontend und ist so für jede Person nutzbar. Das Frontend basiert auf typischen HTML, CSS und JavaScript. Außerdem wird das Open-Source toolkit Bootstrap 5 als Framework für das Frontend verwendet. Bootstrap zeichnet sich durch seine schnelle Umsetzbarkeit von responsive Webseiten aus, welche direkt auf mehreren Endgeräten unterschiedlichster Art verwendet werden können.   
+    Das Ticketsystem hat sein eigenes Frontend und ist so für jede Person nutzbar. Das Frontend basiert auf typischen HTML, CSS und JavaScript. Außerdem wird das Open-Source Toolkit Bootstrap 5 als Framework für das Frontend verwendet. Bootstrap zeichnet sich durch seine schnelle Umsetzbarkeit von responsive Webseiten aus, welche direkt auf mehreren Endgeräten unterschiedlichster Art verwendet werden können.   
     
     \subsection{Backend}
-    Das Frontend muss natürlich mit einem passendem Backend ergänzt werden. Für die Entwicklung des Backends wird dem weltweitem Standard entsprechend JavaScript verwendet. \newline
+    Das Frontend muss natürlich mit einem passenden Backend ergänzt werden. Für die Entwicklung des Backends wird dem weltweiten Standard entsprechend JavaScript verwendet. \newline
 
-    Das Backend ist grundlegend für die Kommunikation zwischen Client und Webserver da. Der Benutzer kann im Frontend ein Ticket erstellen, die Daten dieses Tickets werden dann vom Backend erfasst und an das Webserver-Backend gesendet. Der Webserver sendet die Ticketdaten and die Datenbank weiter.
-    Das JavaScript-Backend liefert keine Informationen über den Datenbank-Server.      
+    Das Backend ist grundlegend für die Kommunikation zwischen Client und Webserver da. Der Benutzer kann im Frontend ein Ticket erstellen, die Daten dieses Tickets werden dann vom Backend erfasst und an das Webserver-Backend gesendet. Der Webserver sendet die Ticketdaten an die Datenbank weiter.  
+    Das JavaScript-Backend liefert keine Informationen über den Datenbank-Server.
 
     \begin{lstlisting}[language=JavaScript, caption={Backend Funktion: submitTicket}, captionpos=t]
         function submitTicket(){

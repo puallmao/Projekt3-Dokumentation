@@ -1,17 +1,14 @@
-\babel@toc {ngerman}{}
+\babel@toc {ngerman}{}\relax 
 \contentsline {section}{\numberline {1}Firewall}{2}{section.1}%
 \contentsline {subsection}{\numberline {1.1}Server aufsetzen}{2}{subsection.1.1}%
 \contentsline {subsection}{\numberline {1.2}Konfiguration}{2}{subsection.1.2}%
 \contentsline {section}{\numberline {2}DNS und DHCP}{3}{section.2}%
 \contentsline {subsection}{\numberline {2.1}Server aufsetzen}{3}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}DNS-Service aufsetzen}{3}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}DNS-Service konfigurieren}{3}{subsection.2.3}%
-\contentsline {subsection}{\numberline {2.4}DHCP-Service aufsetzen}{3}{subsection.2.4}%
-\contentsline {subsection}{\numberline {2.5}DHCP-Service konfigurieren}{3}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.2}Konfiguration}{3}{subsection.2.2}%
 \contentsline {section}{\numberline {3}Datenbank}{4}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Server aufsetzen}{4}{subsection.3.1}%
 \contentsline {subsubsection}{\numberline {3.1.1}Datenbank aufsetzen}{4}{subsubsection.3.1.1}%
-\contentsline {subsection}{\numberline {3.2}Datenbank konfigurien}{4}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.2}Datenbank konfigurieren}{4}{subsection.3.2}%
 \contentsline {subsection}{\numberline {3.3}Backend}{5}{subsection.3.3}%
 \contentsline {section}{\numberline {4}Webserver}{6}{section.4}%
 \contentsline {subsection}{\numberline {4.1}Server aufsetzen}{6}{subsection.4.1}%
